@@ -20,7 +20,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vendor',
             name='vendor_id',
-            field=models.CharField(blank=True, editable=False, max_length=20, unique=True),
+            field=models.CharField(blank=True, editable=False, max_length=20, null=True),
         ),
         migrations.RunPython(backfill_vendor_ids, migrations.RunPython.noop),
+        migrations.AlterField(
+            model_name='vendor',
+            name='vendor_id',
+            field=models.CharField(blank=True, editable=False, max_length=20, unique=True),
+        ),
     ]
