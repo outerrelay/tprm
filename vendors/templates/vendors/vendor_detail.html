@@ -26,30 +26,30 @@
 
 <div class="row g-4 mb-4">
   <div class="col-md-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header fw-semibold">Details</div>
+    <div class="tac-card h-100">
+      <div class="tac-card-header">Details</div>
       <div class="card-body">
         {% if vendor.description %}
           <p class="mb-3 text-muted">{{ vendor.description }}</p>
         {% endif %}
         <dl class="row mb-0 small">
           {% if vendor.website %}
-            <dt class="col-sm-4 text-muted">Website</dt>
+            <dt class="col-sm-4">Website</dt>
             <dd class="col-sm-8">
               <a href="{{ vendor.website }}" target="_blank" rel="noopener">{{ vendor.website }}</a>
             </dd>
           {% endif %}
           {% if vendor.contact_name %}
-            <dt class="col-sm-4 text-muted">Contact</dt>
+            <dt class="col-sm-4">Contact</dt>
             <dd class="col-sm-8">{{ vendor.contact_name }}</dd>
           {% endif %}
           {% if vendor.contact_email %}
-            <dt class="col-sm-4 text-muted">Email</dt>
+            <dt class="col-sm-4">Email</dt>
             <dd class="col-sm-8"><a href="mailto:{{ vendor.contact_email }}">{{ vendor.contact_email }}</a></dd>
           {% endif %}
-          <dt class="col-sm-4 text-muted">Added</dt>
+          <dt class="col-sm-4">Added</dt>
           <dd class="col-sm-8">{{ vendor.created_at|date:"N j, Y" }}</dd>
-          <dt class="col-sm-4 text-muted">Updated</dt>
+          <dt class="col-sm-4">Updated</dt>
           <dd class="col-sm-8">{{ vendor.updated_at|date:"N j, Y" }}</dd>
         </dl>
       </div>
@@ -66,10 +66,10 @@
 
 {% with assessments=vendor.assessments.all %}
 {% if assessments %}
-<div class="card shadow-sm">
+<div class="tac-card">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
+      <thead>
         <tr>
           <th>Title</th>
           <th>Category</th>
@@ -89,7 +89,7 @@
               {{ assessment.title }}
             </a>
           </td>
-          <td><span class="badge bg-secondary">{{ assessment.get_category_display }}</span></td>
+          <td><span class="badge badge-tac-category">{{ assessment.get_category_display }}</span></td>
           <td>{{ assessment.status|status_badge }}</td>
           <td>{{ assessment.inherent_rating|tier_badge }}</td>
           <td>{{ assessment.residual_rating|tier_badge }}</td>
