@@ -12,10 +12,10 @@
 </div>
 
 {% if vendors %}
-<div class="card shadow-sm">
+<div class="tac-card">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
+      <thead>
         <tr>
           <th>Name</th>
           <th>Tier</th>
@@ -48,7 +48,7 @@
             {% endif %}
           </td>
           <td class="text-center">
-            <span class="badge bg-light text-dark border">{{ vendor.assessments.count }}</span>
+            <span class="badge badge-tac-off">{{ vendor.assessments.count }}</span>
           </td>
           <td class="text-end">
             <a href="{% url 'vendors:vendor_update' vendor.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>

@@ -4,26 +4,26 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 _TIER_CSS = {
-    'critical': 'bg-danger',
-    'high': 'bg-warning text-dark',
-    'medium': 'bg-info text-dark',
-    'low': 'bg-success',
-    'none': 'bg-secondary',
+    'critical': 'badge-tac-critical',
+    'high': 'badge-tac-high',
+    'medium': 'badge-tac-medium',
+    'low': 'badge-tac-ok',
+    'none': 'badge-tac-off',
 }
 
 _STATUS_CSS = {
-    'active': 'bg-success',
-    'under_review': 'bg-warning text-dark',
-    'offboarded': 'bg-secondary',
-    'planned': 'bg-secondary',
-    'in_progress': 'bg-primary',
-    'completed': 'bg-success',
-    'cancelled': 'bg-danger',
-    'open': 'bg-danger',
-    'accepted': 'bg-warning text-dark',
-    'mitigated': 'bg-success',
-    'closed': 'bg-secondary',
-    'none': 'bg-secondary',
+    'active': 'badge-tac-ok',
+    'under_review': 'badge-tac-warn',
+    'offboarded': 'badge-tac-off',
+    'planned': 'badge-tac-off',
+    'in_progress': 'badge-tac-info',
+    'completed': 'badge-tac-ok',
+    'cancelled': 'badge-tac-critical',
+    'open': 'badge-tac-critical',
+    'accepted': 'badge-tac-warn',
+    'mitigated': 'badge-tac-ok',
+    'closed': 'badge-tac-off',
+    'none': 'badge-tac-off',
 }
 
 

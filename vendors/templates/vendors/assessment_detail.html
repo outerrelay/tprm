@@ -18,7 +18,7 @@
   <div>
     <h1 class="h3 mb-1">{{ assessment.title }}</h1>
     <div class="d-flex gap-2 align-items-center flex-wrap">
-      <span class="badge bg-secondary">{{ assessment.get_category_display }}</span>
+      <span class="badge badge-tac-category">{{ assessment.get_category_display }}</span>
       {{ assessment.status|status_badge }}
     </div>
   </div>
@@ -29,29 +29,29 @@
 
 <div class="row g-3 mb-4">
   <div class="col-auto">
-    <div class="card shadow-sm px-3 py-2 small">
-      <span class="text-muted">Inherent rating</span>
+    <div class="tac-stat-card">
+      <span class="tac-stat-label">Inherent rating</span>
       <div class="mt-1">{{ assessment.inherent_rating|tier_badge }}</div>
     </div>
   </div>
   <div class="col-auto">
-    <div class="card shadow-sm px-3 py-2 small">
-      <span class="text-muted">Residual rating</span>
+    <div class="tac-stat-card">
+      <span class="tac-stat-label">Residual rating</span>
       <div class="mt-1">{{ assessment.residual_rating|tier_badge }}</div>
     </div>
   </div>
   {% if assessment.started_at %}
   <div class="col-auto">
-    <div class="card shadow-sm px-3 py-2 small">
-      <span class="text-muted">Started</span>
+    <div class="tac-stat-card">
+      <span class="tac-stat-label">Started</span>
       <span class="fw-semibold d-block">{{ assessment.started_at|date:"N j, Y" }}</span>
     </div>
   </div>
   {% endif %}
   {% if assessment.completed_at %}
   <div class="col-auto">
-    <div class="card shadow-sm px-3 py-2 small">
-      <span class="text-muted">Completed</span>
+    <div class="tac-stat-card">
+      <span class="tac-stat-label">Completed</span>
       <span class="fw-semibold d-block">{{ assessment.completed_at|date:"N j, Y" }}</span>
     </div>
   </div>
@@ -59,8 +59,8 @@
 </div>
 
 {% if assessment.notes %}
-<div class="card shadow-sm mb-4">
-  <div class="card-header fw-semibold">Notes</div>
+<div class="tac-card mb-4">
+  <div class="tac-card-header">Notes</div>
   <div class="card-body text-muted">{{ assessment.notes|linebreaksbr }}</div>
 </div>
 {% endif %}
