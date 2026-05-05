@@ -47,6 +47,8 @@
             <dt class="col-sm-4">Email</dt>
             <dd class="col-sm-8"><a href="mailto:{{ vendor.contact_email }}">{{ vendor.contact_email }}</a></dd>
           {% endif %}
+          <dt class="col-sm-4">Vendor ID</dt>
+          <dd class="col-sm-8"><code>{{ vendor.vendor_id }}</code></dd>
           <dt class="col-sm-4">Added</dt>
           <dd class="col-sm-8">{{ vendor.created_at|date:"N j, Y" }}</dd>
           <dt class="col-sm-4">Updated</dt>

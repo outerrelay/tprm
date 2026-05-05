@@ -17,6 +17,7 @@
     <table class="table table-hover align-middle mb-0">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Name</th>
           <th>Tier</th>
           <th>Status</th>
@@ -28,6 +29,7 @@
       <tbody>
         {% for vendor in vendors %}
         <tr>
+          <td><code class="small">{{ vendor.vendor_id }}</code></td>
           <td>
             <a href="{% url 'vendors:vendor_detail' vendor.pk %}" class="fw-semibold text-decoration-none">
               {{ vendor.name }}

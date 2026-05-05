@@ -34,6 +34,7 @@ class Vendor(models.Model):
         UNDER_REVIEW = 'under_review', 'Under review'
         OFFBOARDED = 'offboarded', 'Offboarded'
 
+    vendor_id = models.CharField(max_length=20, unique=True, blank=True, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     tier = models.CharField(max_length=20, choices=Tier.choices, default=Tier.MEDIUM)
@@ -49,6 +50,13 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.vendor_id:
+            last = Vendor.objects.order_by('id').last()
+            next_num = (last.pk if last else 0) + 1
+            self.vendor_id = f"VND-{next_num:04d}"
+        super().save(*args, **kwargs)
 
     @property
     def overall_inherent_rating(self):
