@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load vendor_extras %}
+
+{% block title %}Vendors — TPRM Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Vendors</h1>
+  <a href="{% url 'vendors:vendor_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Add vendor
+  </a>
+</div>
+
+{% if vendors %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Tier</th>
+          <th>Status</th>
+          <th>Contact</th>
+          <th class="text-center">Assessments</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vendor in vendors %}
+        <tr>
+          <td>
+            <a href="{% url 'vendors:vendor_detail' vendor.pk %}" class="fw-semibold text-decoration-none">
+              {{ vendor.name }}
+            </a>
+            {% if vendor.description %}
+              <div class="text-muted small">{{ vendor.description|truncatechars:60 }}</div>
+            {% endif %}
+          </td>
+          <td>{{ vendor.tier|tier_badge }}</td>
+          <td>{{ vendor.status|status_badge }}</td>
+          <td>
+            {% if vendor.contact_email %}
+              <a href="mailto:{{ vendor.contact_email }}" class="small text-muted text-decoration-none">
+                {{ vendor.contact_email }}
+              </a>
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <span class="badge bg-light text-dark border">{{ vendor.assessments.count }}</span>
+          </td>
+          <td class="text-end">
+            <a href="{% url 'vendors:vendor_update' vendor.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-building fs-1 d-block mb-3 opacity-25"></i>
+  <p class="mb-1">No vendors yet.</p>
+  <a href="{% url 'vendors:vendor_create' %}">Add your first vendor</a>
+</div>
+{% endif %}
+{% endblock %}

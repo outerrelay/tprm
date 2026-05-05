@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — TPRM Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <i class="bi bi-shield-check fs-1 text-primary"></i>
+          <h1 class="h4 mt-2 mb-0">TPRM Platform</h1>
+          <p class="text-muted small">Sign in to continue</p>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <input
+                type="{{ field.field.widget.input_type }}"
+                name="{{ field.html_name }}"
+                id="{{ field.id_for_label }}"
+                class="form-control {% if field.errors %}is-invalid{% endif %}"
+                {% if field.value %}value="{{ field.value }}"{% endif %}
+                autocomplete="{{ field.html_name }}"
+              >
+              {% for error in field.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary w-100 mt-1">Sign in</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
