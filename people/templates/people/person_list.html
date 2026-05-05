@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load person_extras %}
+
+{% block title %}People — TPRM Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">People</h1>
+  <a href="{% url 'people:person_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Add person
+  </a>
+</div>
+
+<form method="get" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-6">
+    <label class="form-label" for="q">Search</label>
+    <input type="text" name="q" id="q" value="{{ q }}" class="form-control"
+           placeholder="Name, email, phone, vendor, role">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label" for="role">Role</label>
+    <select name="role" id="role" class="form-select">
+      <option value="">All roles</option>
+      {% for value, label in role_choices %}
+        <option value="{{ value }}" {% if value == current_role %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Filter</button>
+    {% if q or current_role %}
+      <a href="{% url 'people:person_list' %}" class="btn btn-outline-secondary">Reset</a>
+    {% endif %}
+  </div>
+</form>
+
+{% if people %}
+<div class="tac-card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th class="text-center">Vendors</th>
+          <th>Updated</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for person in people %}
+        <tr>
+          <td><code class="small">{{ person.person_id }}</code></td>
+          <td>
+            <a href="{% url 'people:person_detail' person.pk %}" class="fw-semibold text-decoration-none">
+              {{ person.full_name }}
+            </a>
+          </td>
+          <td>
+            {% if person.email %}
+              <a href="mailto:{{ person.email }}" class="small text-muted text-decoration-none">{{ person.email }}</a>
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ person.phone|default:"—" }}</td>
+          <td class="text-center">
+            <span class="badge badge-tac-off">{{ person.vendor_count }}</span>
+          </td>
+          <td class="small text-muted">{{ person.updated_at|date:"N j, Y" }}</td>
+          <td class="text-end">
+            <a href="{% url 'people:person_update' person.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+  {% if q or current_role %}
+    <p class="mb-1">No people match your filters.</p>
+    <a href="{% url 'people:person_list' %}">Clear filters</a>
+  {% else %}
+    <p class="mb-1">No people yet.</p>
+    <a href="{% url 'people:person_create' %}">Add your first person</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

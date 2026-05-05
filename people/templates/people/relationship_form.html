@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if object %}Edit relationship{% else %}Link person to {{ vendor.name }}{% endif %} — TPRM Platform
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vendors:vendor_list' %}">Vendors</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'vendors:vendor_detail' vendor.pk %}">{{ vendor.name }}</a>
+    </li>
+    <li class="breadcrumb-item active">
+      {% if object %}Edit relationship{% else %}Link person{% endif %}
+    </li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="tac-card">
+      <div class="tac-card-header">
+        {% if object %}
+          Edit relationship: {{ object.person.full_name }}
+        {% else %}
+          Link person to {{ vendor.name }}
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+                {{ field.label }}
+              </label>
+              {{ field }}
+              {% if field.name == 'person' and not object %}
+                <div class="form-text">
+                  Can't find them?
+                  <a href="{% url 'people:person_create' %}?vendor={{ vendor.pk }}">Add a new person</a>.
+                </div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="d-flex gap-2 pt-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'vendors:vendor_detail' vendor.pk %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

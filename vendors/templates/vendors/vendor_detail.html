@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load vendor_extras %}
+{% load person_extras %}
 
 {% block title %}{{ vendor.name }} — TPRM Platform{% endblock %}
 
@@ -59,7 +60,103 @@
   </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3" id="people">
+  <h2 class="h5 mb-0">People</h2>
+  <a href="{% url 'people:relationship_create' vendor.pk %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-person-plus"></i> Link person
+  </a>
+</div>
+
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+  <span class="text-muted small me-2">Filter by role:</span>
+  <a href="?#people"
+     class="btn btn-sm {% if not current_role %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+  {% for value, label in role_choices %}
+    <a href="?role={{ value }}#people"
+       class="btn btn-sm {% if current_role == value %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
+
+{% if people_links %}
+<div class="tac-card mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Title</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th class="text-end">Ownership %</th>
+          <th class="text-center">Primary</th>
+          <th class="text-center">Active</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for link in people_links %}
+        <tr>
+          <td>
+            <a href="{% url 'people:person_detail' link.person.pk %}" class="fw-semibold text-decoration-none">
+              {{ link.person.full_name }}
+            </a>
+          </td>
+          <td>{{ link.relationship_type|relationship_type_badge }}</td>
+          <td class="small">{{ link.title|default:"—" }}</td>
+          <td>
+            {% if link.person.email %}
+              <a href="mailto:{{ link.person.email }}" class="small text-muted text-decoration-none">{{ link.person.email }}</a>
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ link.person.phone|default:"—" }}</td>
+          <td class="text-end small">
+            {% if link.ownership_percentage is not None %}
+              {{ link.ownership_percentage }}%
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-center">
+            {% if link.is_primary_contact %}
+              <i class="bi bi-check-circle-fill" style="color: var(--tac-cyan);"></i>
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-center">
+            {% if link.is_active %}
+              <span class="badge badge-tac-ok">Active</span>
+            {% else %}
+              <span class="badge badge-tac-off">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'people:person_detail' link.person.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+            <a href="{% url 'people:relationship_update' link.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <a href="{% url 'people:relationship_delete' link.pk %}" class="btn btn-sm btn-outline-secondary">Unlink</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-4 text-muted">
+  <p class="mb-0">
+    {% if current_role %}
+      No people linked in this role.
+      <a href="?#people">Show all roles</a>.
+    {% else %}
+      No people linked yet.
+      <a href="{% url 'people:relationship_create' vendor.pk %}">Link one</a>.
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
   <h2 class="h5 mb-0">Assessments</h2>
   <a href="{% url 'vendors:assessment_create' vendor.pk %}" class="btn btn-primary btn-sm">
     <i class="bi bi-plus-lg"></i> New assessment

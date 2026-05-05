@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load person_extras %}
+
+{% block title %}Unlink {{ object.person.full_name }} from {{ object.vendor.name }} — TPRM Platform{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vendors:vendor_list' %}">Vendors</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'vendors:vendor_detail' object.vendor.pk %}">{{ object.vendor.name }}</a>
+    </li>
+    <li class="breadcrumb-item active">Unlink person</li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="tac-card">
+      <div class="tac-card-header">Unlink person from vendor</div>
+      <div class="card-body">
+        <div class="alert alert-warning mb-3">
+          You are about to remove
+          <strong>{{ object.person.full_name }}</strong>
+          ({{ object.relationship_type|relationship_type_badge }})
+          from <strong>{{ object.vendor.name }}</strong>.
+          The person profile will remain in the People list.
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Confirm unlink</button>
+            <a href="{% url 'vendors:vendor_detail' object.vendor.pk %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ person.full_name }} — TPRM Platform{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'people:person_list' %}">People</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'people:person_detail' person.pk %}">{{ person.full_name }}</a>
+    </li>
+    <li class="breadcrumb-item active">Delete</li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="tac-card">
+      <div class="tac-card-header">Delete person</div>
+      <div class="card-body">
+        <div class="alert alert-danger mb-3">
+          You are about to permanently delete <strong>{{ person.full_name }}</strong>
+          ({{ person.person_id }}).
+          {% if link_count %}
+            This will also remove
+            <strong>{{ link_count }}</strong>
+            vendor relationship{{ link_count|pluralize }}.
+          {% endif %}
+          This action cannot be undone.
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Confirm delete</button>
+            <a href="{% url 'people:person_detail' person.pk %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -2,8 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 
-from .models import Vendor, Assessment
-from .forms import VendorForm, AssessmentForm
+from .forms import AssessmentForm, VendorForm
+from .mixins import AuditMixin
+from .models import Assessment, Vendor
 
 
 class VendorListView(LoginRequiredMixin, ListView):
@@ -17,22 +18,34 @@ class VendorDetailView(LoginRequiredMixin, DetailView):
     template_name = 'vendors/vendor_detail.html'
     context_object_name = 'vendor'
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        from people.models import VendorPersonRelationship
+        current_role = self.request.GET.get('role', '').strip()
+        links = self.object.person_links.select_related('person').all()
+        if current_role:
+            links = links.filter(relationship_type=current_role)
+        ctx['people_links'] = links
+        ctx['current_role'] = current_role
+        ctx['role_choices'] = VendorPersonRelationship.RelationshipType.choices
+        return ctx
 
-class VendorCreateView(LoginRequiredMixin, CreateView):
+
+class VendorCreateView(LoginRequiredMixin, AuditMixin, CreateView):
     model = Vendor
     form_class = VendorForm
     template_name = 'vendors/vendor_form.html'
     success_url = reverse_lazy('vendors:vendor_list')
 
 
-class VendorUpdateView(LoginRequiredMixin, UpdateView):
+class VendorUpdateView(LoginRequiredMixin, AuditMixin, UpdateView):
     model = Vendor
     form_class = VendorForm
     template_name = 'vendors/vendor_form.html'
     success_url = reverse_lazy('vendors:vendor_list')
 
 
-class AssessmentCreateView(LoginRequiredMixin, CreateView):
+class AssessmentCreateView(LoginRequiredMixin, AuditMixin, CreateView):
     model = Assessment
     form_class = AssessmentForm
     template_name = 'vendors/assessment_form.html'
@@ -56,7 +69,7 @@ class AssessmentDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'assessment'
 
 
-class AssessmentUpdateView(LoginRequiredMixin, UpdateView):
+class AssessmentUpdateView(LoginRequiredMixin, AuditMixin, UpdateView):
     model = Assessment
     form_class = AssessmentForm
     template_name = 'vendors/assessment_form.html'
