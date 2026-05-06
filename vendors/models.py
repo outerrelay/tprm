@@ -1,29 +1,12 @@
-from django.conf import settings
 from django.db import models
 
-_RATING_VALUES = {'none': 0, 'low': 1, 'medium': 2, 'high': 3, 'critical': 4}
-_CATEGORY_WEIGHTS = {
-    'credit': 0.2,
-    'integrity': 0.2,
-    'sanctions': 0.2,
-    'cyber': 0.2,
-    'geopolitical': 0.2,
-}
+from companies.models import Company
+from core.models import AuditedModel, PrefixedIDModel
+
+from .services import ratings
 
 
-def _bucket(score):
-    if score < 0.5:
-        return 'none'
-    if score < 1.5:
-        return 'low'
-    if score < 2.5:
-        return 'medium'
-    if score < 3.5:
-        return 'high'
-    return 'critical'
-
-
-class Vendor(models.Model):
+class Vendor(PrefixedIDModel, AuditedModel):
     class Tier(models.TextChoices):
         CRITICAL = 'critical', 'Critical'
         HIGH = 'high', 'High'
@@ -35,66 +18,46 @@ class Vendor(models.Model):
         UNDER_REVIEW = 'under_review', 'Under review'
         OFFBOARDED = 'offboarded', 'Offboarded'
 
+    id_prefix = "VND"
+    id_field = "vendor_id"
+
     vendor_id = models.CharField(max_length=20, unique=True, blank=True, editable=False)
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    company = models.OneToOneField(
+        Company, on_delete=models.CASCADE, related_name='vendor_profile',
+    )
     tier = models.CharField(max_length=20, choices=Tier.choices, default=Tier.MEDIUM)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
-    website = models.URLField(blank=True)
     contact_name = models.CharField(max_length=255, blank=True)
     contact_email = models.EmailField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ['company__name']
 
     def __str__(self):
-        return self.name
+        return self.company.name
 
-    def save(self, *args, **kwargs):
-        if not self.vendor_id:
-            last = Vendor.objects.order_by('id').last()
-            next_num = (last.pk if last else 0) + 1
-            self.vendor_id = f"VND-{next_num:04d}"
-        super().save(*args, **kwargs)
+    @property
+    def name(self):
+        return self.company.name
+
+    @property
+    def description(self):
+        return self.company.description
+
+    @property
+    def website(self):
+        return self.company.website
 
     @property
     def overall_inherent_rating(self):
-        latest = {}
-        for a in self.assessments.order_by('-created_at'):
-            latest.setdefault(a.category, a.inherent_rating)
-        if not latest:
-            return 'none'
-        score = sum(
-            _RATING_VALUES.get(latest.get(cat, 'none'), 0) * w
-            for cat, w in _CATEGORY_WEIGHTS.items()
-        )
-        return _bucket(score)
+        return ratings.overall_inherent_rating(self)
 
     @property
     def overall_residual_rating(self):
-        latest = {}
-        for a in self.assessments.order_by('-created_at'):
-            latest.setdefault(a.category, a.residual_rating)
-        if not latest:
-            return 'none'
-        score = sum(
-            _RATING_VALUES.get(latest.get(cat, 'none'), 0) * w
-            for cat, w in _CATEGORY_WEIGHTS.items()
-        )
-        return _bucket(score)
+        return ratings.overall_residual_rating(self)
 
 
-class Assessment(models.Model):
+class Assessment(AuditedModel):
     class Status(models.TextChoices):
         PLANNED = 'planned', 'Planned'
         IN_PROGRESS = 'in_progress', 'In progress'
@@ -128,19 +91,9 @@ class Assessment(models.Model):
     notes = models.TextField(blank=True)
     started_at = models.DateField(null=True, blank=True)
     completed_at = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.vendor.name} — {self.get_category_display()}"
+        return f"{self.vendor.company.name} — {self.get_category_display()}"

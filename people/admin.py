@@ -37,7 +37,7 @@ class VendorPersonRelationshipAdmin(admin.ModelAdmin):
     ]
     list_filter = ['relationship_type', 'is_active', 'is_primary_contact']
     search_fields = [
-        'vendor__name', 'person__first_name', 'person__last_name',
+        'vendor__company__name', 'person__first_name', 'person__last_name',
         'person__email', 'title',
     ]
     readonly_fields = ['created_at', 'updated_at', 'created_by', 'updated_by']

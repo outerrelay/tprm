@@ -7,7 +7,7 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView,
 )
 
-from vendors.mixins import AuditMixin
+from core.mixins import AuditMixin
 from vendors.models import Vendor
 
 from .forms import PersonForm, VendorPersonRelationshipForm

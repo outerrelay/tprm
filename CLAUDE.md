@@ -1,5 +1,9 @@
 # TPRM Platform — Claude Guide
 
+## Architecture
+
+**Read [ARCHITECTURE.md](ARCHITECTURE.md) before changing models, adding apps, or designing relationships.** It records the canonical decisions on the Company/Vendor split, ownership graph, abstract base models, and where domain logic lives — with the rationale for each. Don't re-litigate those decisions without the user's go-ahead.
+
 ## Stack
 
 | Layer | Choice | Reason |
@@ -13,28 +17,34 @@
 
 ```
 config/                  Django project settings, root URLs, WSGI
-vendors/                 First-party app: Vendor, Assessment, Risk
-  models.py              Domain models
-  forms.py               ModelForms with Bootstrap widget attrs
-  views.py               Class-based views
-  urls.py                URL patterns (namespaced: app_name = 'vendors')
-  admin.py               Admin registrations
-  templatetags/          Custom template filters
-    vendor_extras.py     tier_badge, status_badge filters
-  templates/vendors/     App-level templates
+core/                    Abstract bases and shared utilities (no tables)
+  models.py              TimestampedModel, AuditedModel, PrefixedIDModel
+  mixins.py              AuditMixin (view mixin)
+  forms.py               BootstrapFormMixin (auto-applies form-control etc.)
+  nav.py                 NAV_SECTIONS — sidebar configuration
+  context_processors.py  Injects nav_sections into every template
+  templatetags/
+    core_extras.py       tier_badge, status_badge filters
+companies/               Canonical Company records (legal entities)
+vendors/                 Vendor (OneToOne with Company) + Assessment
+  services/ratings.py    Risk-rollup logic (kept off the model)
+people/                  Person + VendorPersonRelationship
 templates/               Global templates
-  base.html              Base layout (navbar, sidebar, Bootstrap CDN)
+  base.html              Base layout (navbar, sidebar driven by nav_sections)
   registration/          Django auth templates (login.html)
 ```
 
 ## Key conventions
 
-- **Views**: always class-based, always use `LoginRequiredMixin`
-- **Forms**: defined in `forms.py` with Bootstrap `attrs` on each widget — never use `fields = [...]` on the view class directly
-- **Templates**: all extend `base.html`; use `{% load vendor_extras %}` for badge filters
-- **URL references**: always namespaced — `{% url 'vendors:vendor_list' %}`, `reverse_lazy('vendors:...')`
-- **Models**: define `__str__` and `Meta.ordering`; use `TextChoices` for all enum fields
-- **No raw SQL** — use the Django ORM
+- **Views**: always class-based, always use `LoginRequiredMixin`. For audit fields, mix in `core.mixins.AuditMixin` on Create/Update views.
+- **Forms**: inherit `core.forms.BootstrapFormMixin` (in addition to `forms.ModelForm`). Don't set `class="form-control"` on widgets manually — the mixin handles it.
+- **Models**: inherit `core.models.AuditedModel` for created_at/updated_at/created_by/updated_by. If the model needs a public-facing prefixed id (e.g. `VND-XXXX`), also inherit `PrefixedIDModel` and set `id_prefix` and `id_field` class attrs.
+- **Domain logic**: lives in `<app>/services/<topic>.py`, not on the model. Models stay thin.
+- **Templates**: all extend `base.html`; use `{% load core_extras %}` for badge filters.
+- **Sidebar nav**: configured in [core/nav.py](core/nav.py) — append a section/item there, no template edits needed.
+- **URL references**: always namespaced — `{% url 'vendors:vendor_list' %}`, `reverse_lazy('vendors:...')`.
+- **Models (cont.)**: define `__str__` and `Meta.ordering`; use `TextChoices` for all enum fields.
+- **No raw SQL** — use the Django ORM.
 
 ## Running locally
 

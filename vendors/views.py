@@ -2,8 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 
+from core.mixins import AuditMixin
+
 from .forms import AssessmentForm, VendorForm
-from .mixins import AuditMixin
 from .models import Assessment, Vendor
 
 
