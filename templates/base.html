@@ -428,15 +428,15 @@
     {% if user.is_authenticated %}
     <nav class="col-md-2 d-none d-md-block sidebar">
       <div class="nav flex-column">
-        <span class="nav-section">Risk Management</span>
-        <a href="{% url 'vendors:vendor_list' %}"
-           class="nav-link {% if 'vendors' in request.path %}active{% endif %}">
-          <i class="bi bi-building"></i> Vendors
-        </a>
-        <a href="{% url 'people:person_list' %}"
-           class="nav-link {% if 'people' in request.path %}active{% endif %}">
-          <i class="bi bi-people"></i> People
-        </a>
+        {% for section in nav_sections %}
+          <span class="nav-section">{{ section.label }}</span>
+          {% for item in section.items %}
+            <a href="{% url item.url_name %}"
+               class="nav-link {% if item.path_match in request.path %}active{% endif %}">
+              <i class="bi {{ item.icon }}"></i> {{ item.label }}
+            </a>
+          {% endfor %}
+        {% endfor %}
       </div>
     </nav>
     <main class="col-md-10 main-content">

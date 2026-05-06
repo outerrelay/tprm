@@ -1,9 +1,11 @@
 from django import forms
 
+from core.forms import BootstrapFormMixin
+
 from .models import Person, VendorPersonRelationship
 
 
-class PersonForm(forms.ModelForm):
+class PersonForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Person
         fields = [
@@ -13,22 +15,13 @@ class PersonForm(forms.ModelForm):
             'notes',
         ]
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'country_of_residence': forms.TextInput(attrs={'class': 'form-control'}),
-            'nationality': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g. Canadian, French',
-            }),
-            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'nationality': forms.TextInput(attrs={'placeholder': 'e.g. Canadian, French'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
 
-class VendorPersonRelationshipForm(forms.ModelForm):
+class VendorPersonRelationshipForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = VendorPersonRelationship
         fields = [
@@ -37,18 +30,12 @@ class VendorPersonRelationshipForm(forms.ModelForm):
             'start_date', 'end_date', 'notes',
         ]
         widgets = {
-            'person': forms.Select(attrs={'class': 'form-select'}),
-            'relationship_type': forms.Select(attrs={'class': 'form-select'}),
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
             'ownership_percentage': forms.NumberInput(attrs={
-                'class': 'form-control',
                 'step': '0.01', 'min': '0', 'max': '100',
             }),
-            'is_primary_contact': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
     def clean(self):

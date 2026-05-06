@@ -1,12 +1,15 @@
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from core.models import AuditedModel, PrefixedIDModel
 from vendors.models import Vendor
 
 
-class Person(models.Model):
+class Person(PrefixedIDModel, AuditedModel):
+    id_prefix = "PER"
+    id_field = "person_id"
+
     person_id = models.CharField(max_length=20, unique=True, blank=True, editable=False)
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True)
@@ -20,16 +23,6 @@ class Person(models.Model):
     )
     date_of_birth = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -46,15 +39,8 @@ class Person(models.Model):
     def nationalities_list(self):
         return [n.strip() for n in self.nationality.split(',') if n.strip()]
 
-    def save(self, *args, **kwargs):
-        if not self.person_id:
-            last = Person.objects.order_by('id').last()
-            next_num = (last.pk if last else 0) + 1
-            self.person_id = f"PER-{next_num:04d}"
-        super().save(*args, **kwargs)
 
-
-class VendorPersonRelationship(models.Model):
+class VendorPersonRelationship(AuditedModel):
     class RelationshipType(models.TextChoices):
         SHAREHOLDER = 'shareholder', 'Shareholder'
         KEY_EXECUTIVE = 'key_executive', 'Key executive'
@@ -80,19 +66,9 @@ class VendorPersonRelationship(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, editable=False, related_name='+',
-    )
 
     class Meta:
-        ordering = ['-is_active', 'vendor__name', 'person__last_name']
+        ordering = ['-is_active', 'vendor__company__name', 'person__last_name']
         constraints = [
             models.UniqueConstraint(
                 fields=['vendor', 'person', 'relationship_type'],
@@ -101,7 +77,7 @@ class VendorPersonRelationship(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.person} — {self.vendor.name} ({self.get_relationship_type_display()})"
+        return f"{self.person} — {self.vendor.company.name} ({self.get_relationship_type_display()})"
 
     def clean(self):
         if self.start_date and self.end_date and self.end_date < self.start_date:
