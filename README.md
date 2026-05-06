@@ -1,6 +1,6 @@
 # TPRM Platform
 
-A third-party risk management platform for tracking vendors, risk assessments, and findings.
+A third-party risk management platform for tracking vendors, companies, people, and risk assessments.
 
 ## Tech Stack
 
@@ -55,10 +55,16 @@ Django's built-in admin is available at http://localhost:8000/admin — useful f
 
 ```
 config/                  Django project (settings, root URLs, WSGI)
-vendors/                 Core app — Vendor, Assessment, Risk models
-  forms.py               Bootstrap-wired ModelForms
-  templatetags/          Custom badge filters (tier_badge, status_badge)
+core/                    Abstract bases and shared utilities (no DB tables)
+  models.py              TimestampedModel, AuditedModel, PrefixedIDModel
+  forms.py               BootstrapFormMixin
+  nav.py                 Sidebar navigation config
+companies/               Canonical Company records (legal entities)
+vendors/                 Vendor (one-to-one with Company) + Assessment models
+  services/ratings.py    Risk-rollup logic
   templates/vendors/     App-level page templates
+people/                  Person entities and VendorPersonRelationship
+  templates/people/      App-level page templates
 templates/               Global templates (base layout, login page)
 manage.py
 requirements.txt
@@ -66,6 +72,8 @@ requirements.txt
 
 ## Domain Model
 
-- **Vendor** — a third-party entity; has a tier (Critical / High / Medium / Low) and a status
-- **Assessment** — a point-in-time risk review for a vendor; has a risk rating and lifecycle status
-- **Risk** — an individual finding within an assessment; has severity and remediation status
+- **Company** — a legal entity; canonical record for any third party (`CMP-NNNN`)
+- **Vendor** — the vendor role for a Company; holds tier (Critical / High / Medium / Low), status, and contact info (`VND-NNNN`)
+- **Assessment** — a point-in-time risk review for a vendor; categories include Credit, Integrity, Sanctions, Cyber, and Geopolitical; carries inherent and residual ratings
+- **Person** — an individual associated with one or more vendors (`PER-NNNN`)
+- **VendorPersonRelationship** — links a Person to a Vendor with a relationship type (Shareholder, Key executive, Beneficial owner, Contact person) and optional ownership percentage
